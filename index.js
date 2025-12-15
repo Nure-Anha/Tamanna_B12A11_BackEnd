@@ -29,29 +29,29 @@ async function run() {
 
 
 
-    // ******************************************************************
+    // ******************************* MY PORTION **************************************************************
     const myDatabase = client.db("LifeDrop_DataBase") ;
     const userCollections = myDatabase.collection('Users_List') ;
  
     
     app.post('/users' , async(req , res) => {
       const userInfo = req.body ;
-      userInfo.role = 'donor' ;
+      userInfo.role = 'Donor' ;
+      userInfo.status = 'Active' ;
       userInfo.createdAt = new Date() ;
 
       const result = await userCollections.insertOne(userInfo) ;
       res.send(result) ;
     })
 
-    app.get("/users/role/:email" , async(req , res) => {
+    app.get("/users/:email" , async(req , res) => {
       const {paramsEmail} = req.params.email ;
-      console.log(paramsEmail) ;
       const query = {email:paramsEmail} ;
-      const result = await userCollections.findOne(query) ;  // reg ekta email e ekabr e hobe so findone hbe
+      const result = await userCollections.findOne(query) ;  // registration ekta email e ekabr e hobe so findone hbe
       res.send(result) ;
     })
 
-
+    // ********************************MY PORTION END****************************************************
 
 
 
