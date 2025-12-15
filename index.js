@@ -26,6 +26,36 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+
+
+    // ******************************************************************
+    const myDatabase = client.db("LifeDrop_DataBase") ;
+    const userCollections = myDatabase.collection('Users_List') ;
+ 
+    
+    app.post('/users' , async(req , res) => {
+      const userInfo = req.body ;
+      userInfo.role = 'donor' ;
+      userInfo.createdAt = new Date() ;
+
+      const result = await userCollections.insertOne(userInfo) ;
+      res.send(result) ;
+    })
+
+    app.get("/users/role/:email" , async(req , res) => {
+      const {paramsEmail} = req.params.email ;
+      console.log(paramsEmail) ;
+      const query = {email:paramsEmail} ;
+      const result = await userCollections.findOne(query) ;  // reg ekta email e ekabr e hobe so findone hbe
+      res.send(result) ;
+    })
+
+
+
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
