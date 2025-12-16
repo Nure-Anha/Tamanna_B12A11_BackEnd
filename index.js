@@ -35,7 +35,7 @@ async function run() {
     const createdDonationRequestCollections = myDatabase.collection("Created_Donation_Requests");
 
  
-    
+    // Registered users info stored in dattabase
     app.post('/users' , async(req , res) => {
       const userInfo = req.body ;
       userInfo.role = 'donor' ;
@@ -53,6 +53,7 @@ async function run() {
     })
 
 
+    // Create Donation Request info stored in dattabase
     app.post('/created-donation-requsts' , async(req , res) => {
       const createdDonationReqInfo = req.body ;
       createdDonationReqInfo.Donation_status = 'pending' ;
@@ -60,6 +61,17 @@ async function run() {
       const result = await createdDonationRequestCollections.insertOne(createdDonationReqInfo) ;
       res.send(result) ;
     })
+
+
+    // Latest 3 requests of logged-in user's need to shown
+    app.get("/recent" , async(req , res) => {
+      const userEmail = req.query.userEmail ;
+      const query_Recent = {Requester_Email : userEmail}
+      const result = await createdDonationRequestCollections.find(query_Recent).sort({createdAt:-1}).limit(3).toArray() ;
+      res.send(result) ;
+    })
+
+
 
     // ********************************MY PORTION END****************************************************
 
