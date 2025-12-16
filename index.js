@@ -7,6 +7,36 @@ const app = express() ;  // express er shobkisu app e niye ashlam
 app.use(cors()) ;
 app.use(express.json()) ;
 
+const admin = require("firebase-admin");
+
+// const serviceAccount = require("./firebase-admin-key.json");
+const decoded = Buffer.from(process.env.FB_SERVICE_KEY, 'base64').toString('utf8')
+const serviceAccount = JSON.parse(decoded);
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+
+const verifyFBToken = async(req , res , next) => {
+  const token = req.headers.authorization ;
+
+  if(!token){
+    return res.status(401).send({message: 'unauthorized access'})
+  }
+
+  try{
+    const idToken = token.split(' ')[1] ;
+    const decoded = await admin.auth().verifyIdToken(idToken) ;
+    console.log('decoded info' , decoded) ;
+    req.decoded_email = decoded.email ;
+    next() ;
+  }
+  catch(error){
+    return res.status(401).send({message: 'unauthorized access'}) ;
+  }
+}
+
+
 
 
 // Cluster thk copy kora code 
@@ -54,7 +84,7 @@ async function run() {
 
 
     // Create Donation Request info stored in dattabase
-    app.post('/created-donation-requsts' , async(req , res) => {
+    app.post('/created-donation-requsts' , verifyFBToken , async(req , res) => {
       const createdDonationReqInfo = req.body ;
       createdDonationReqInfo.Donation_status = 'pending' ;
       createdDonationReqInfo.createdAt = new Date() ;
