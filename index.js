@@ -32,14 +32,15 @@ async function run() {
     // ******************************* MY PORTION **************************************************************
     const myDatabase = client.db("LifeDrop_DataBase") ;
     const userCollections = myDatabase.collection('Users_List') ;
+    const createdDonationRequestCollections = myDatabase.collection("Created_Donation_Requests");
+
  
     
     app.post('/users' , async(req , res) => {
       const userInfo = req.body ;
-      userInfo.role = 'Donor' ;
-      userInfo.status = 'Active' ;
+      userInfo.role = 'donor' ;
+      userInfo.status = 'active' ;
       userInfo.createdAt = new Date() ;
-
       const result = await userCollections.insertOne(userInfo) ;
       res.send(result) ;
     })
@@ -48,6 +49,15 @@ async function run() {
       const {paramsEmail} = req.params.email ;
       const query = {email:paramsEmail} ;
       const result = await userCollections.findOne(query) ;  // registration ekta email e ekabr e hobe so findone hbe
+      res.send(result) ;
+    })
+
+
+    app.post('/created-donation-requsts' , async(req , res) => {
+      const createdDonationReqInfo = req.body ;
+      createdDonationReqInfo.Donation_status = 'pending' ;
+      createdDonationReqInfo.createdAt = new Date() ;
+      const result = await createdDonationRequestCollections.insertOne(createdDonationReqInfo) ;
       res.send(result) ;
     })
 
