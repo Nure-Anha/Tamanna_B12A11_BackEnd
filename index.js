@@ -117,10 +117,48 @@ async function run() {
       const result = {TotalDonors:totalDonor} ;
       res.send(result) ;
     })
+    // total Fundings
+    // app.get('/total-blood-donation-request' , async(req , res) => {
+    //   const totalRequests = await createdDonationRequestCollections.countDocuments() ;
+    //   const result = {TotalRequests:totalRequests} ;
+    //   res.send(result) ;
+    // })
     // total blood donation request 
     app.get('/total-blood-donation-request' , async(req , res) => {
       const totalRequests = await createdDonationRequestCollections.countDocuments() ;
       const result = {TotalRequests:totalRequests} ;
+      res.send(result) ;
+    })
+
+
+    // All users(donors)
+    app.get('/all-users' , async(req , res) => {
+      const allUsers = await userCollections.find().toArray() ;
+      const result = {All_Users : allUsers} ;
+      res.send(result) ;
+    })
+
+
+    // Update User_Status from All Users(Admin) page
+    app.patch("/update-user-status" ,verifyFBToken, async(req , res) => {
+      const {myEmail , myStatus} = req.query ;
+      const query = {Email:myEmail} ;
+
+      const updateStatus = {
+        $set : {status:myStatus}
+      }
+      const result = await userCollections.updateOne(query , updateStatus) ;
+      res.send(result) ;
+    })
+    // Update User_Role from All Users(Admin) page
+    app.patch("/update-user-role" ,verifyFBToken, async(req , res) => {
+      const {myEmail , myRole} = req.query ;
+      const query = {Email:myEmail} ;
+
+      const updateRole = {
+        $set : {role:myRole}
+      }
+      const result = await userCollections.updateOne(query , updateRole) ;
       res.send(result) ;
     })
 
