@@ -76,8 +76,8 @@ async function run() {
     })
 
     app.get("/users/:email" , async(req , res) => {
-      const {paramsEmail} = req.params.email ;
-      const query = {email:paramsEmail} ;
+      const email = req.params.email ;
+      const query = {Email:email} ;
       const result = await userCollections.findOne(query) ;  // registration ekta email e ekabr e hobe so findone hbe
       res.send(result) ;
     })
@@ -98,6 +98,29 @@ async function run() {
       const userEmail = req.query.userEmail ;
       const query_Recent = {Requester_Email : userEmail}
       const result = await createdDonationRequestCollections.find(query_Recent).sort({createdAt:-1}).limit(3).toArray() ;
+      res.send(result) ;
+    })
+
+
+    // All requests of logged-in user's need to shown
+    app.get("/all-requests" , async(req , res) => {
+      const userEmail = req.query.userEmail ;
+      const query_Recent = {Requester_Email : userEmail}
+      const result = await createdDonationRequestCollections.find(query_Recent).toArray() ;
+      res.send(result) ;
+    })
+
+
+    // TotalDonor
+    app.get('/total-donor' , async(req , res) => {
+      const totalDonor = await userCollections.countDocuments({role:'donor'}) ;
+      const result = {TotalDonors:totalDonor} ;
+      res.send(result) ;
+    })
+    // total blood donation request 
+    app.get('/total-blood-donation-request' , async(req , res) => {
+      const totalRequests = await createdDonationRequestCollections.countDocuments() ;
+      const result = {TotalRequests:totalRequests} ;
       res.send(result) ;
     })
 
