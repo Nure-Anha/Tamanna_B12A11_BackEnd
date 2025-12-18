@@ -176,6 +176,31 @@ async function run() {
 
 
 
+    // edit donation requst = get creaed donation req data for update 
+    app.get("/edit-donation-request/:id" , async(req , res) => {
+      const {id} = req.params ;
+      const result = await createdDonationRequestCollections.findOne({_id:new ObjectId(id)}) ;
+      res.send(result) ;
+    })
+    // now update
+     app.patch("/edit-donation-request/:id" , async(req , res) => {
+      const {id} = req.params ;
+      const query = {$set:req.body} ;
+      const result = await createdDonationRequestCollections.updateOne({_id:new ObjectId(id)} , query) ;
+      res.send(result) ;
+     })
+
+
+
+    //  DElete donation req
+    app.delete("/delete-req/:id" , async(req , res)=>{
+      const {id} = req.params ; 
+      const result = await createdDonationRequestCollections.deleteOne({_id:new ObjectId(id)}) ;
+      res.send(result) ;
+    })
+
+
+
     // ********************************MY PORTION END****************************************************
 
 
