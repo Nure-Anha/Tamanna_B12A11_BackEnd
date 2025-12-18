@@ -6,6 +6,7 @@ const port = process.env.PORT || 3000 ;
 const app = express() ;  // express er shobkisu app e niye ashlam 
 app.use(cors()) ;
 app.use(express.json()) ;
+const { ObjectId } = require('mongodb');
 
 const admin = require("firebase-admin");
 
@@ -159,6 +160,17 @@ async function run() {
         $set : {role:myRole}
       }
       const result = await userCollections.updateOne(query , updateRole) ;
+      res.send(result) ;
+    })
+    // Update Donation_Status from All Users(Admin) page
+    app.patch("/update-donation-status" ,verifyFBToken, async(req , res) => {
+      const {my_id , myDonationStatus} = req.query ;
+      const query = { _id: new ObjectId(my_id) }; ;
+
+      const updateDonationStatus = {
+        $set : {Donation_status:myDonationStatus}
+      }
+      const result = await createdDonationRequestCollections.updateOne(query , updateDonationStatus) ;
       res.send(result) ;
     })
 
