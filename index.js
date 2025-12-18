@@ -201,6 +201,14 @@ async function run() {
 
 
 
+    // All users donation requsts  need to shown - admin
+    app.get("/all-blood-donation-requests" , async(req , res) => {
+      const result = await createdDonationRequestCollections.find().toArray() ;
+      res.send(result) ;
+    })
+
+
+
     // ********************************MY PORTION END****************************************************
 
 
