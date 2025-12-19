@@ -3,6 +3,9 @@ const express = require ('express') ;
 require('dotenv').config() ;
 const port = process.env.PORT || 3000 ;
 
+const stripe = require('stripe')(process.env.STRIPE_KEY) ; 
+const crypto = require('crypto') ;
+
 const app = express() ;  // express er shobkisu app e niye ashlam 
 app.use(cors()) ;
 app.use(express.json()) ;
@@ -64,6 +67,7 @@ async function run() {
     const myDatabase = client.db("LifeDrop_DataBase") ;
     const userCollections = myDatabase.collection('Users_List') ;
     const createdDonationRequestCollections = myDatabase.collection("Created_Donation_Requests");
+    const paymentsCollection = myDatabase.collection("Payment_Collections");
 
  
     // Registered users info stored in dattabase
@@ -206,6 +210,96 @@ async function run() {
       const result = await createdDonationRequestCollections.find().toArray() ;
       res.send(result) ;
     })
+
+
+    // Fundings
+    app.post('/payment', async (req, res) => {
+        const donateInfo = req.body;
+        console.log(donateInfo);
+
+        const amount = parseInt(donateInfo.Donate_Amount) * 100;
+
+        const session = await stripe.checkout.sessions.create({
+          line_items: [
+            {
+              price_data: {
+                currency: 'usd',
+                unit_amount: amount,
+                product_data: {
+                  name: 'Please Donate',
+                },
+              },
+              quantity: 1,
+            },
+          ],
+          mode: 'payment',
+          metadata:{
+          Donor_Name : donateInfo?.Donor_Name ,
+        } ,
+          customer_email : donateInfo?.Donate_Email ,
+          success_url: `${process.env.SITE_DOMAIN}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${process.env.SITE_DOMAIN}/payment-cancelled`,
+        });
+
+        res.send({ url: session.url });
+    });
+
+
+    // success payment
+    app.post('/success-payment' , async(req , res) => {
+      const {session_id} = req.query ;
+      const session = await stripe.checkout.sessions.retrieve (session_id) 
+      console.log(session) ;
+
+      const transactionID = session.payment_intent ;
+
+      const isPaymentExist = await paymentsCollection.findOne({transactionID}) ;
+      if(isPaymentExist) {
+        return res.status(200).send({ message: 'Payment already recorded' }); ;
+      }
+
+      if(session.payment_status === 'paid'){
+        const paymentInfo =  {
+          amount:session.amount_total/100 ,
+          donorName: session.metadata?.Donor_Name ,
+          currency:session.currency ,
+          donorEmail:session.customer_email ,
+          transactionID ,
+          payment_status:session.payment_status ,
+          paidAt:new Date()
+
+        }
+        const result = await paymentsCollection.insertOne(paymentInfo) ;
+        return res.send(result) ;
+      }
+
+    })
+
+
+
+    // all funcdings made by the user
+    app.get('/all-fundings', async (req, res) => {
+      const result = await paymentsCollection.find().toArray();
+      res.send(result);
+    });
+
+    // total funding for admin+volunter dashboard
+    app.get('/total-fundings', verifyFBToken, async (req, res) => {
+
+      const payments = await paymentsCollection.find().toArray();
+      
+      let totalAmount = 0;
+      for (const i of payments) {
+        totalAmount = totalAmount + i.amount;
+      }
+
+      res.send({ totalFunds: totalAmount });
+
+    })
+
+
+
+
 
 
 
