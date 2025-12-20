@@ -298,6 +298,33 @@ async function run() {
     })
 
 
+    // search page
+    app.get('/search' , async(req,res)=>{
+      const {bloodGroup , district , upazilla} = req.query ;
+
+      const query = {} ;
+      
+      if(!query){
+        return ;
+      }
+
+      if(bloodGroup){
+        query.Blood_Group = bloodGroup 
+      }
+      if(district){
+        query.Recipient_District = district
+      }
+      if(bloodGroup){
+        query.Recipient_Upazilla = upazilla 
+      }
+
+      const result = await createdDonationRequestCollections.find(query).toArray() ;
+      res.send(result) ;
+
+
+    })
+
+
 
 
 
