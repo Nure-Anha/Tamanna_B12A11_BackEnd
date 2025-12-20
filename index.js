@@ -278,13 +278,13 @@ async function run() {
 
 
     // all funcdings made by the user
-    app.get('/all-fundings', async (req, res) => {
+    app.get('/all-fundings', async(req, res) => {
       const result = await paymentsCollection.find().toArray();
       res.send(result);
     });
 
     // total funding for admin+volunter dashboard
-    app.get('/total-fundings', verifyFBToken, async (req, res) => {
+    app.get('/total-fundings', verifyFBToken, async(req, res) => {
 
       const payments = await paymentsCollection.find().toArray();
       
@@ -324,10 +324,25 @@ async function run() {
 
 
     // Public-blood-donation req - all pending
-    app.get('/public-blood-donation-requests', async (req, res) => {
-    const result = await createdDonationRequestCollections.find({ Donation_status: 'pending' }).toArray();
-    res.send(result);
+    app.get('/public-blood-donation-requests', async(req, res) => {
+      const result = await createdDonationRequestCollections.find({ Donation_status: 'pending' }).toArray();
+      res.send(result);
+      });
+    // pending donation req details page after click view btn
+    app.get('/pending-donation-request-details/:id', async(req, res) => {
+      const id = req.params.id;
+      const result = await createdDonationRequestCollections.findOne({ _id: new ObjectId(id)});
+      res.send(result);
     });
+    //update status penduing to inprogress
+    app.patch('/pending-donation-request-details/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {$set: {Donation_status: 'inprogress',}}
+      const result = await createdDonationRequestCollections.updateOne({_id: new ObjectId(id)}, query);
+      res.send(result);
+    });
+
+
 
 
 
