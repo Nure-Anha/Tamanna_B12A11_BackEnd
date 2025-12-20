@@ -320,10 +320,14 @@ async function run() {
 
       const result = await createdDonationRequestCollections.find(query).toArray() ;
       res.send(result) ;
-
-
     })
 
+
+    // Public-blood-donation req - all pending
+    app.get('/public-blood-donation-requests', async (req, res) => {
+    const result = await createdDonationRequestCollections.find({ Donation_status: 'pending' }).toArray();
+    res.send(result);
+    });
 
 
 
