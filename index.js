@@ -309,17 +309,19 @@ async function run() {
       }
 
       if(bloodGroup){
-        query.Blood_Group = bloodGroup 
+        const fixed = bloodGroup.replace(/ /g, '+').trim() ;
+        query.Blood_Group = fixed ;
       }
       if(district){
         query.Recipient_District = district
       }
-      if(bloodGroup){
+      if(upazilla){
         query.Recipient_Upazilla = upazilla 
       }
 
       const result = await createdDonationRequestCollections.find(query).toArray() ;
       res.send(result) ;
+      console.log(req.query)
     })
 
 
