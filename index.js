@@ -343,6 +343,18 @@ async function run() {
     });
 
 
+    // requst done need for my home page
+    app.get('/requests-fulfilled' , async(req , res) => {
+      const result = await createdDonationRequestCollections.find({Donation_status: 'done'}).toArray() ;
+      res.send(result) ;
+    })
+    // total donors need for my home page
+    app.get('/active-donors' , async(req , res) => {
+      const result = await userCollections.find({role: 'donor'}).toArray() ;
+      res.send(result) ;
+    })
+
+
 
 
 
