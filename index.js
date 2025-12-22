@@ -80,12 +80,43 @@ async function run() {
       res.send(result) ;
     })
 
+   
     app.get("/users/:email" , async(req , res) => {
       const email = req.params.email ;
       const query = {Email:email} ;
       const result = await userCollections.findOne(query) ;  // registration ekta email e ekabr e hobe so findone hbe
       res.send(result) ;
     })
+
+
+    // Dash - Profile
+    app.get("/profile/:email" , async(req , res) => {
+      const email = req.params.email ;
+      const query = {Email:email} ;
+      const result = await userCollections.findOne(query) ;  
+      res.send(result) ;
+    })
+
+    // Profile Update
+    app.patch('/profile-update', async (req, res) => {
+    const {Email,Updated_Name,Updated_Photo_URL,Updated_Blood_Group,Updated_Recipient_District,Updated_Recipient_Upazilla} = req.body ;
+    const query = { Email } ;
+    const updateProfile = {
+      $set: {
+        Email ,
+        Name: Updated_Name,
+        Photo_URL: Updated_Photo_URL,
+        Blood_Group: Updated_Blood_Group,
+        Recipient_District: Updated_Recipient_District,
+        Recipient_Upazilla: Updated_Recipient_Upazilla,
+        UpdatedDateAt: new Date()
+      }
+    };
+
+    const result = await userCollections.updateOne(query, updateProfile);
+    res.send(result);
+    });
+
 
 
     // Create Donation Request info stored in dattabase
@@ -279,7 +310,7 @@ async function run() {
 
     // all funcdings made by the user
     app.get('/all-fundings', async(req, res) => {
-      const result = await paymentsCollection.find().toArray();
+      const result = await paymentsCollection.find().sort({paidAt: -1}).toArray();
       res.send(result);
     });
 
