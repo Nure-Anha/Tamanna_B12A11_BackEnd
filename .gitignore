@@ -1,3 +1,4 @@
 node_modules
 .env
 lifedrop-18df94e8ad.json
+.vercel
