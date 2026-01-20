@@ -389,6 +389,42 @@ async function run() {
 
 
 
+    // *********SCIC*********
+// Donor overview cards data (SECURE)
+app.get('/donor-overview', verifyFBToken, async (req, res) => {
+  try {
+    const email = req.query.email;
+
+    // 🔐 email validation
+    if (req.decoded_email !== email) {
+      return res.status(403).send({ message: 'Forbidden access' });
+    }
+
+    const totalRequests = await createdDonationRequestCollections.countDocuments({
+      Requester_Email: email
+    });
+
+    const completed = await createdDonationRequestCollections.countDocuments({
+      Requester_Email: email,
+      Donation_status: 'done'
+    });
+
+    const pending = await createdDonationRequestCollections.countDocuments({
+      Requester_Email: email,
+      Donation_status: 'pending' ,
+    });
+
+    res.send({
+      totalRequests,
+      completed,
+      pending
+    });
+
+  } catch (error) {
+    console.error('Donor overview error:', error);
+    res.status(500).send({ message: 'Server error' });
+  }
+});
 
 
 
